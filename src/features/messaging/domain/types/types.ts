@@ -1,4 +1,3 @@
-
 export type UserId = string & { readonly __brand: 'UserId' };
 
 
@@ -8,6 +7,7 @@ export type ConversationId = string & { readonly __brand: 'ConversationId' };
 
 export const createUserId = (id: string): UserId => id as UserId;
 export const createMessageId = (id: string): MessageId => id as MessageId;
+export const createConversationId = (id: string): ConversationId => id as ConversationId;
 
 export enum MessageStatus {
   SENDING = 'sending',
@@ -24,11 +24,17 @@ export enum FileType {
   OTHER = 'other',
 }
 
+export enum PresenceStatus {
+  ONLINE = 'online',
+  AWAY = 'away',
+  OFFLINE = 'offline',
+}
 
 export interface User {
   id: UserId;
   name: string;
   avatar: string | null;
+  presenceStatus: PresenceStatus;
   lastSeenAt: Date | null;
 }
 
@@ -45,6 +51,7 @@ export interface Message {
   conversationId: ConversationId;
   senderId: UserId;
   content: string | null;
+  files: MessageFile[];
   status: MessageStatus;
   createdAt: Date;
   updatedAt: Date;
@@ -52,16 +59,36 @@ export interface Message {
   deletedAt: Date | null;
 }
 
+export interface Conversation {
+  id: ConversationId;
+  participants: User[];
+  lastMessage: Message | null;
+  unreadCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface TypingEvent {
+  userId: UserId;
+  conversationId: ConversationId;
+  isTyping: boolean;
+}
+
+// Events to manage user online status (Ex Online, Away from keyboard etc)
+export interface PresenceEvent {
+  userId: UserId;
+  status: PresenceStatus;
+  lastSeenAt: Date | null;
+}
 
 export type WebSocketEvent =
   | { type: 'message:sent'; payload: Message }
   | { type: 'message:delivered'; payload: { messageId: MessageId; deliveredAt: Date } }
   | { type: 'message:read'; payload: { messageId: MessageId; readAt: Date } }
   | { type: 'message:deleted'; payload: { messageId: MessageId; deletedAt: Date } }
-  // need to determine types. Ex: Discussion
-  | { type: 'user:typing'; payload: any }
-  | { type: 'user:presence'; payload: any }
-  | { type: 'conversation:updated'; payload: any };
+  | { type: 'user:typing'; payload: TypingEvent }
+  | { type: 'user:presence'; payload: PresenceEvent }
+  | { type: 'conversation:updated'; payload: Conversation };
 
 export type ApiResponse<T> =
   | { data: T; error?: never }
@@ -70,6 +97,7 @@ export type ApiResponse<T> =
 export interface CreateMessagePayload {
   conversationId: ConversationId;
   content: string | null;
+  files?: MessageFile[];
 }
 
 export interface UpdateMessageStatusPayload {
@@ -80,6 +108,7 @@ export interface UpdateMessageStatusPayload {
 export interface MessageQueryParams {
   conversationId: ConversationId;
   limit?: number;
+  cursor?: MessageId; // ID from last message loaded
 }
 
 // Type guard for WebSocket events
@@ -103,4 +132,18 @@ export function isWebSocketEvent(obj: unknown): obj is WebSocketEvent {
     'payload' in obj &&
     typeof (obj as WebSocketEvent).type === 'string'
   );
+}
+
+// other types
+
+export type MessageDraft = Omit<Message, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'readAt' | 'deletedAt'>;
+
+export type ConversationWithUnread = Conversation & {
+  unreadCount: number;
+};
+
+export interface PaginatedResult<T> {
+  data: T[];
+  nextCursor: string | null;
+  hasMore: boolean;
 }

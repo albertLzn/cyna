@@ -1,12 +1,12 @@
 import {
   createUserId,
   createMessageId,
+  createConversationId,
   MessageStatus,
   isMessage,
   isWebSocketEvent,
   type Message,
   type WebSocketEvent,
-  type UserId,
 } from './types';
 
 describe('Domain Types', () => {
@@ -16,6 +16,7 @@ describe('Domain Types', () => {
       expect(userId).toBe('userTest');
 
       const rawString: string = 'wrongUserTest';
+      // volontairement non assignable à UserId
     });
 
     it('should create MessageId', () => {
@@ -23,9 +24,11 @@ describe('Domain Types', () => {
       expect(messageId).toBe('testMessage');
     });
 
-    it('should avoid mixing IDs', () => {
+    it('should avoid mixing IDs (compile-time)', () => {
       const userId = createUserId('123');
       const messageId = createMessageId('123');
+
+      // pas d’assert runtime : protection = TypeScript
     });
   });
 
@@ -34,9 +37,10 @@ describe('Domain Types', () => {
       it('should validate correct Message object', () => {
         const validMessage: Message = {
           id: createMessageId('testMessage'),
-          conversationId: 'convTest' as any,
+          conversationId: createConversationId('convTest'),
           senderId: createUserId('userTest'),
           content: 'descr',
+          files: [],
           status: MessageStatus.SENT,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -67,7 +71,7 @@ describe('Domain Types', () => {
       it('should reject object with invalid status', () => {
         const invalidMessage = {
           id: createMessageId('testMessage'),
-          conversationId: 'convTest',
+          conversationId: createConversationId('convTest'),
           senderId: createUserId('userTest'),
           status: 'INVALID_STATUS',
         };
@@ -82,9 +86,10 @@ describe('Domain Types', () => {
           type: 'message:sent',
           payload: {
             id: createMessageId('testMessage'),
-            conversationId: 'convTest' as any,
+            conversationId: createConversationId('convTest'),
             senderId: createUserId('userTest'),
             content: 'Test',
+            files: [],
             status: MessageStatus.SENT,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -96,11 +101,11 @@ describe('Domain Types', () => {
         expect(isWebSocketEvent(event)).toBe(true);
       });
 
-      it('should reject events', () => {
+      it('should accept structurally valid events (shallow guard)', () => {
         const events: WebSocketEvent[] = [
-          { type: 'user:typing', payload: {} },
-          { type: 'user:presence', payload: {} },
-          { type: 'conversation:updated', payload: {} },
+          { type: 'user:typing', payload: {} as any },
+          { type: 'user:presence', payload: {} as any },
+          { type: 'conversation:updated', payload: {} as any },
         ];
 
         events.forEach(event => {
@@ -126,7 +131,7 @@ describe('Domain Types', () => {
       expect(MessageStatus.FAILED).toBe('failed');
     });
 
-    it('should allow switch', () => {
+    it('should allow exhaustive switch', () => {
       const labelFor = (status: MessageStatus): string => {
         switch (status) {
           case MessageStatus.SENDING:
