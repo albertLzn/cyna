@@ -5,7 +5,7 @@ import {
     ForbiddenError,
     NotFoundError,
     WebSocketNotConnectedError,
-} from './interfaces';
+} from '.';
 
 describe('Domain Interfaces', () => {
     describe('Custom Error Classes', () => {

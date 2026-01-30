@@ -1,65 +1,109 @@
-import Image from "next/image";
+"use client";
+
+import { ChatFloatingWrapper } from "@/app/messaging/components/ChatFloatingWrapper";
+import { useConversationStore } from "@/app/messaging/store/conversationStore";
+import { MessageSquare, Inbox, Clock, ArrowRight, Mail } from "lucide-react";
+import Link from "next/link";
+import { useEffect } from "react";
+import { formatLastActivity } from "./messaging/domain/helpers/date-formatter";
 
 export default function Home() {
+  const { conversations, loadConversations, loading } = useConversationStore();
+
+  useEffect(() => {
+    loadConversations();
+  }, [loadConversations]);
+
+  // metrics for mini-dashboard 
+  const totalConversations = conversations.length;
+  const unreadCount = conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
+  const lastActivity = conversations[0]?.lastMessage?.createdAt 
+    ? formatLastActivity(conversations[0].lastMessage.createdAt)
+    : "No activity";
+  const lastPerson = conversations[0]?.participants[0]?.name || "No one";
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-blue-600">Cyna</h1>
+          <nav className="flex gap-6">
+            <Link href="/" className="text-gray-700 hover:text-blue-600 font-medium">
+              Home
+            </Link>
+            <Link href="/messages" className="text-gray-700 hover:text-blue-600 font-medium">
+              Messages
+            </Link>
+          </nav>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      </header>
+
+      <main className="max-w-5xl mx-auto px-4 py-16">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-6">
+            <MessageSquare className="w-10 h-10 text-white" />
+          </div>
+          <h2 className="text-5xl font-bold text-gray-900 mb-4">
+            CHAT NETWORKING
+          </h2>
+{/*  TODO :Add messages module / page
+          <Link
+            href="/messages"
+            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:shadow-xl"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Open Messages
+            <ArrowRight className="w-5 h-5" />
+          </Link> */}
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+            <div className="flex items-start justify-between mb-4">
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <Inbox className="w-8 h-8 text-blue-600" />
+              </div>
+            </div>
+            <h3 className="text-3xl font-bold text-gray-900 mb-1">
+              {loading ? "..." : totalConversations}
+            </h3>
+            <p className="text-sm font-medium text-gray-600 mb-1">Total Conversations</p>
+            <p className="text-xs text-gray-500">Active chats</p>
+          </div>
+
+          <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+            <div className="flex items-start justify-between mb-4">
+              <div className="p-3 bg-purple-50 rounded-lg">
+                <Mail className="w-8 h-8 text-purple-600" />
+              </div>
+              {unreadCount > 0 && (
+                <span className="bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
+            </div>
+            <h3 className="text-3xl font-bold text-gray-900 mb-1">
+              {loading ? "..." : unreadCount}
+            </h3>
+            <p className="text-sm font-medium text-gray-600 mb-1">Unread Messages</p>
+            <p className="text-xs text-gray-500">Needs attention</p>
+          </div>
+
+          <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+            <div className="flex items-start justify-between mb-4">
+              <div className="p-3 bg-green-50 rounded-lg">
+                <Clock className="w-8 h-8 text-green-600" />
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-1">
+              {loading ? "..." : lastActivity}
+            </h3>
+            <p className="text-sm font-medium text-gray-600 mb-1">Last Activity</p>
+            <p className="text-xs text-gray-500">{loading ? "..." : lastPerson}</p>
+          </div>
         </div>
       </main>
+
+      <ChatFloatingWrapper />
     </div>
   );
 }

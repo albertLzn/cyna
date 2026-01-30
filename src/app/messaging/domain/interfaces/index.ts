@@ -11,7 +11,7 @@ import type {
   PresenceStatus,
   WebSocketEvent,
   ApiResponse,
-} from '../types/types';
+} from '../types';
 
 // Abstraction (HTTP, WebSocket)
 export interface IMessageRepository {

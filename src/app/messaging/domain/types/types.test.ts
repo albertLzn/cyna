@@ -7,7 +7,7 @@ import {
   isWebSocketEvent,
   type Message,
   type WebSocketEvent,
-} from './types';
+} from '.';
 
 describe('Domain Types', () => {
   describe('Branded Types Helpers', () => {

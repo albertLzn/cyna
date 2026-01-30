@@ -1,0 +1,19 @@
+export const MESSAGE_SERVICE_CONSTANTS = {
+  CACHE_TTL_MS: 30_000,
+  OPTIMISTIC_TIMEOUT_MS: 5_000,
+  PENDING_MESSAGE_CLEANUP_DELAY_MS: 1_000,
+  MAX_RETRIES: 3,
+  RETRY_BASE_DELAY_MS: 1_000,
+  MAX_FILES_PER_MESSAGE: 5,
+  DEFAULT_PAGE_LIMIT: 50,
+  BROADCAST_CHANNEL_NAME: 'messaging_sync',
+  REQUEST_TIMEOUT_ERROR: 'Request timeout',
+  MOCK_CURRENT_USER_ID: 'user1',
+} as const;
+
+export const PAGINATION = {
+  DEFAULT_PAGE_SIZE: 20,
+  MAX_PAGE_SIZE: 100,
+} as const;
+
+export const LOCAL_URL = 'http://localhost:3001/api'  as const
