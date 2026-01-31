@@ -123,7 +123,7 @@ export class WebSocketService implements IWebSocketService {
   private handleMessage(data: string): void {
     try {
       const event = JSON.parse(data) as WebSocketEvent;
-
+    console.log('DEBUG TYPING Received:', event); 
       const listeners = this.listeners.get(event.type);
       if (listeners) {
         listeners.forEach((callback) => callback(event as any));

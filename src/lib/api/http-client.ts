@@ -1,3 +1,5 @@
+import { MOCK_CURRENT_USER_ID } from "@/features/messaging/domain/constants";
+
 export interface HttpClientConfig {
   baseURL?: string;
   getAuthToken?: () => string | null;
@@ -15,7 +17,7 @@ export abstract class BaseRepository {
   protected getHeaders(): Record<string, string> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'X-Mock-User-Id': 'user1', // TODO: Replace with real auth
+      'X-Mock-User-Id': MOCK_CURRENT_USER_ID, // TODO: Replace with real auth
     };
 
     const token = this.getAuthToken();

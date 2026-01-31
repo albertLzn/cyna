@@ -6,6 +6,9 @@ import { MessageStatus } from "../domain/types";
 import { CheckCheck, Clock, XCircle } from "lucide-react";
 import { useMessages } from "../hooks/useMessage";
 import { MESSAGE_LIST_UI, MOCK_CURRENT_USER_ID, TIME_CONSTANTS } from "../domain/constants";
+import { useTypingIndicator } from "../hooks/useTyping";
+import { useConversationStore } from "../store/conversationStore";
+import { TypingIndicator } from "./TypingIndicator";
 
 interface MessageListProps {
   conversationId: ConversationId;
@@ -14,7 +17,10 @@ interface MessageListProps {
 export function MessageList({ conversationId }: MessageListProps) {
   const { messages, loading, loadMore, retryFailed } =
     useMessages(conversationId);
+  const { typingUsers } = useTypingIndicator(conversationId);
+  const { conversations } = useConversationStore();
 
+  const currentConversation = conversations.find(c => c.id === conversationId);
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -89,8 +95,8 @@ export function MessageList({ conversationId }: MessageListProps) {
               >
                 <div
                   className={`rounded-lg px-4 py-2 ${isOwn
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-100 text-gray-900"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-100 text-gray-900"
                     } ${isDeleted ? "italic opacity-60" : ""}`}
                 >
                   {isDeleted ? (
@@ -142,6 +148,12 @@ export function MessageList({ conversationId }: MessageListProps) {
             </div>
           );
         })}
+
+        {typingUsers.length > 0 && currentConversation && (
+          <TypingIndicator
+            conversationId={conversationId}
+          />
+        )}
       </div>
 
       <div ref={bottomRef} />
