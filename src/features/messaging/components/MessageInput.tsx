@@ -1,13 +1,14 @@
 import { useState, useRef, KeyboardEvent } from 'react';
 import { Send, Paperclip, X } from 'lucide-react';
-import type { MessageFile } from '../domain/types';
+import type { ConversationId, MessageFile } from '../domain/types';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { useMessageStore } from '../store/messageStore';
 import { MESSAGE_INPUT_LIMITS } from '../domain/constants';
+import { useTypingIndicator } from '../hooks/useTyping';
 
 interface MessageInputProps {
-  conversationId: string;
+  conversationId: ConversationId;
   disabled?: boolean;
 }
 
@@ -16,10 +17,23 @@ export function MessageInput({ conversationId, disabled }: MessageInputProps) {
   const [files, setFiles] = useState<MessageFile[]>([]);
   const [sending, setSending] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { typingService } = useTypingIndicator(conversationId);
   const { sendMessage } = useMessageStore();
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setContent(value);
+
+    if (value.length > 0) {
+      typingService.startTyping(conversationId);
+    } else {
+      typingService.stopTyping(conversationId);
+    }
+  };
   const handleSend = async () => {
     if ((!content.trim() && files.length === 0) || sending) return;
+
+    typingService.stopTyping(conversationId); // ✅ AJOUTE CETTE LIGNE
 
     setSending(true);
     try {
@@ -36,6 +50,7 @@ export function MessageInput({ conversationId, disabled }: MessageInputProps) {
       handleSend();
     }
   };
+
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
@@ -90,7 +105,6 @@ export function MessageInput({ conversationId, disabled }: MessageInputProps) {
           className="hidden"
           accept="image/*,.pdf,.doc,.docx"
         />
-
         <Button
           type="button"
           variant="ghost"
@@ -100,10 +114,9 @@ export function MessageInput({ conversationId, disabled }: MessageInputProps) {
         >
           <Paperclip className="h-5 w-5" />
         </Button>
-
         <Input
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder="Type a message..."
           disabled={disabled || sending}

@@ -2,28 +2,44 @@ import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MessagesPage from './page';
-
 import { useConversationStore } from '@/features/messaging/store/conversationStore';
+import { useMessageStore } from '@/features/messaging/store/messageStore';
 import type { Conversation } from '@/features/messaging/domain/types';
-import {
-  createConversationId,
-  createUserId,
-  createMessageId,
-  MessageStatus,
-  PresenceStatus,
-} from '@/features/messaging/domain/types';
-
+import { createConversationId, createUserId, createMessageId, MessageStatus, PresenceStatus } from '@/features/messaging/domain/types';
 
 jest.mock('@/features/messaging/store/conversationStore');
+jest.mock('@/features/messaging/store/messageStore');
+
+jest.mock('@/components/ui/button', () => ({
+  Button: ({ children, onClick, className, ...props }: any) => (
+    <button onClick={onClick} className={className} {...props}>
+      {children}
+    </button>
+  ),
+}));
+
+jest.mock('@/components/ui/input', () => ({
+  Input: (props: any) => <input {...props} />,
+}));
+
+jest.mock('@/components/ui/card', () => ({
+  Card: ({ children, className }: any) => <div className={className}>{children}</div>,
+  CardContent: ({ children, className }: any) => <div className={className}>{children}</div>,
+}));
+
+jest.mock('@/components/ui/badge', () => ({
+  Badge: ({ children, className }: any) => <span className={className}>{children}</span>,
+}));
 
 jest.mock('@/features/messaging/components/ConversationList', () => ({
-  ConversationList: ({ conversations, onSelect }: any) => (
+  ConversationList: ({ conversations, selectedId, onSelect }: any) => (
     <div data-testid="conversation-list">
       {conversations.map((conv: any) => (
         <button
           key={conv.id}
-          data-testid={`conv-${conv.id}`}
           onClick={() => onSelect(conv.id)}
+          data-testid={`conv-${conv.id}`}
+          aria-label={conv.participants[0]?.name}
         >
           {conv.participants[0]?.name}
         </button>
@@ -44,89 +60,68 @@ jest.mock('@/features/messaging/components/MessageInput', () => ({
   ),
 }));
 
-jest.mock('@/features/messaging/components/ui/button', () => ({
-  Button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
-}));
-
-jest.mock('@/features/messaging/components/ui/input', () => ({
-  Input: (props: any) => <input {...props} />,
-}));
-
-jest.mock('@/features/messaging/components/ui/card', () => ({
-  Card: ({ children }: any) => <div>{children}</div>,
-  CardContent: ({ children }: any) => <div>{children}</div>,
-}));
-
-jest.mock('@/features/messaging/components/ui/badge', () => ({
-  Badge: ({ children }: any) => <span>{children}</span>,
-}));
-
-const conv1Id = createConversationId('conv1');
-const conv2Id = createConversationId('conv2');
-
-const aliceId = createUserId('user1');
-const bobId = createUserId('user2');
-
 const mockConversations: Conversation[] = [
   {
-    id: conv1Id,
+    id: createConversationId('conv_1'),
     participants: [
       {
-        id: aliceId,
-        name: 'Alice',
-        avatar: null,
+        id: createUserId('user_2'),
+        name: 'Alice Johnson',
+        avatar: 'https://i.pravatar.cc/150?u=alice',
         presenceStatus: PresenceStatus.ONLINE,
         lastSeenAt: null,
       },
     ],
-    unreadCount: 2,
     lastMessage: {
-      id: createMessageId('msg1'),
-      conversationId: conv1Id,
-      senderId: aliceId,
-      content: 'Hey Alice',
+      id: createMessageId('msg_1'),
+      conversationId: createConversationId('conv_1'),
+      senderId: createUserId('user_2'),
+      content: 'Hey, how are you?',
       files: [],
       status: MessageStatus.READ,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      readAt: new Date(),
+      createdAt: new Date('2024-01-30T10:00:00Z'),
+      updatedAt: new Date('2024-01-30T10:00:00Z'),
+      readAt: new Date('2024-01-30T10:05:00Z'),
       deletedAt: null,
     },
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    unreadCount: 2,
+    createdAt: new Date('2024-01-29T10:00:00Z'),
+    updatedAt: new Date('2024-01-30T10:00:00Z'),
   },
   {
-    id: conv2Id,
+    id: createConversationId('conv_2'),
     participants: [
       {
-        id: bobId,
-        name: 'Bob',
-        avatar: null,
+        id: createUserId('user_3'),
+        name: 'Bob Smith',
+        avatar: 'https://i.pravatar.cc/150?u=bob',
         presenceStatus: PresenceStatus.OFFLINE,
-        lastSeenAt: new Date(),
+        lastSeenAt: new Date('2024-01-30T08:00:00Z'),
       },
     ],
-    unreadCount: 0,
     lastMessage: {
-      id: createMessageId('msg2'),
-      conversationId: conv2Id,
-      senderId: bobId,
-      content: 'See you',
+      id: createMessageId('msg_2'),
+      conversationId: createConversationId('conv_2'),
+      senderId: createUserId('user_1'),
+      content: 'See you tomorrow!',
       files: [],
       status: MessageStatus.READ,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date('2024-01-29T15:00:00Z'),
+      updatedAt: new Date('2024-01-29T15:00:00Z'),
       readAt: null,
       deletedAt: null,
     },
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    unreadCount: 0,
+    createdAt: new Date('2024-01-28T10:00:00Z'),
+    updatedAt: new Date('2024-01-29T15:00:00Z'),
   },
 ];
 
 describe('MessagesPage', () => {
-  const loadConversations = jest.fn();
-  const clearError = jest.fn();
+  const mockLoadConversations = jest.fn();
+  const mockClearError = jest.fn();
+  const mockOpenConversation = jest.fn();
+  const mockMarkAsRead = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -135,44 +130,52 @@ describe('MessagesPage', () => {
       conversations: mockConversations,
       loading: false,
       error: null,
-      loadConversations,
-      clearError,
+      loadConversations: mockLoadConversations,
+      clearError: mockClearError,
+      openConversation: mockOpenConversation,
+      markAsRead: mockMarkAsRead,
+    });
+
+    (useMessageStore as unknown as jest.Mock).mockReturnValue({
+      messagesByConversation: new Map(),
+      loading: false,
+      error: null,
+      sendMessage: jest.fn(),
     });
   });
 
-  describe('initialisation', () => {
-    it('loads conversations on mount', () => {
+  describe('Initial Load', () => {
+    it('should call loadConversations on mount', () => {
       render(<MessagesPage />);
-      expect(loadConversations).toHaveBeenCalledTimes(1);
+      expect(mockLoadConversations).toHaveBeenCalledTimes(1);
     });
 
-    it('auto-selects first conversation', async () => {
+    it('should auto-select first conversation when none selected', async () => {
       render(<MessagesPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Alice')).toBeInTheDocument();
+        expect(screen.getByText('Alice Johnson')).toBeInTheDocument();
       });
-
-      expect(screen.getByText('Messages for conv1')).toBeInTheDocument();
     });
   });
 
-  describe('conversation list', () => {
-    it('renders all conversations', () => {
+
+  describe('Conversation List', () => {
+    it('should render conversation list with all conversations', () => {
       render(<MessagesPage />);
 
       expect(screen.getByTestId('conversation-list')).toBeInTheDocument();
-      expect(screen.getByTestId('conv-conv1')).toBeInTheDocument();
-      expect(screen.getByTestId('conv-conv2')).toBeInTheDocument();
+      expect(screen.getByTestId('conv-conv_1')).toBeInTheDocument();
+      expect(screen.getByTestId('conv-conv_2')).toBeInTheDocument();
     });
 
-    it('shows empty state when no conversations', () => {
+    it('should show empty state when no conversations', () => {
       (useConversationStore as unknown as jest.Mock).mockReturnValue({
         conversations: [],
         loading: false,
         error: null,
-        loadConversations,
-        clearError,
+        loadConversations: mockLoadConversations,
+        clearError: mockClearError,
       });
 
       render(<MessagesPage />);
@@ -181,8 +184,16 @@ describe('MessagesPage', () => {
     });
   });
 
-  describe('conversation content', () => {
-    it('shows presence status', async () => {
+  describe('Conversation', () => {
+    it('should display selected conversation header', async () => {
+      render(<MessagesPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Alice Johnson')).toBeInTheDocument();
+      });
+    });
+
+    it('should show online status for active users', async () => {
       render(<MessagesPage />);
 
       await waitFor(() => {
@@ -190,66 +201,106 @@ describe('MessagesPage', () => {
       });
     });
 
-    it('switches conversation when clicked', async () => {
+    it('should show offline status for inactive users', async () => {
       const user = userEvent.setup();
       render(<MessagesPage />);
 
-      await user.click(screen.getByTestId('conv-conv2'));
+      const bobConversation = screen.getByTestId('conv-conv_2');
+      await user.click(bobConversation);
 
       await waitFor(() => {
-        expect(screen.getByText('Messages for conv2')).toBeInTheDocument();
+        expect(screen.getByText('Offline')).toBeInTheDocument();
       });
-
-      expect(screen.getByText('Offline')).toBeInTheDocument();
     });
 
-    it('shows unread badge only when needed', async () => {
+    it('should display unread count badge when messages unread', async () => {
       render(<MessagesPage />);
 
       await waitFor(() => {
         expect(screen.getByText('2 unread')).toBeInTheDocument();
       });
+    });
 
+    it('should not display unread badge when no unread messages', async () => {
       const user = userEvent.setup();
-      await user.click(screen.getByTestId('conv-conv2'));
+      render(<MessagesPage />);
 
-      expect(screen.queryByText(/unread/i)).not.toBeInTheDocument();
+      const bobConversation = screen.getByTestId('conv-conv_2');
+      await user.click(bobConversation);
+
+      await waitFor(() => {
+        expect(screen.queryByText(/unread/i)).not.toBeInTheDocument();
+      });
+    });
+
+    it('should switch between conversations', async () => {
+      const user = userEvent.setup();
+      render(<MessagesPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Messages for conv_1')).toBeInTheDocument();
+      });
+
+      const bobConversation = screen.getByTestId('conv-conv_2');
+      await user.click(bobConversation);
+
+      await waitFor(() => {
+        expect(screen.getByText('Messages for conv_2')).toBeInTheDocument();
+      });
     });
   });
 
-  describe('error handling', () => {
-    it('displays error state', () => {
+  describe('Error Handling', () => {
+    it('should display error message when error occurs', () => {
       (useConversationStore as unknown as jest.Mock).mockReturnValue({
         conversations: [],
         loading: false,
-        error: 'Network error',
-        loadConversations,
-        clearError,
+        error: 'Failed to load conversations',
+        loadConversations: mockLoadConversations,
+        clearError: mockClearError,
       });
 
       render(<MessagesPage />);
 
       expect(screen.getByText(/error loading conversations/i)).toBeInTheDocument();
-      expect(screen.getByText('Network error')).toBeInTheDocument();
+      expect(screen.getByText('Failed to load conversations')).toBeInTheDocument();
     });
 
-    it('retries loading on retry click', async () => {
+    it('should retry loading conversations on error retry click', async () => {
       const user = userEvent.setup();
-
       (useConversationStore as unknown as jest.Mock).mockReturnValue({
         conversations: [],
         loading: false,
         error: 'Network error',
-        loadConversations,
-        clearError,
+        loadConversations: mockLoadConversations,
+        clearError: mockClearError,
       });
 
       render(<MessagesPage />);
 
-      await user.click(screen.getByText(/retry/i));
+      const retryButton = screen.getByText(/retry/i);
+      await user.click(retryButton);
 
-      expect(clearError).toHaveBeenCalledTimes(1);
-      expect(loadConversations).toHaveBeenCalledTimes(2);
+      expect(mockClearError).toHaveBeenCalledTimes(1);
+      expect(mockLoadConversations).toHaveBeenCalledTimes(2);
+    });
+
+    it('should clear error when retry button clicked', async () => {
+      const user = userEvent.setup();
+      (useConversationStore as unknown as jest.Mock).mockReturnValue({
+        conversations: [],
+        loading: false,
+        error: 'Error occurred',
+        loadConversations: mockLoadConversations,
+        clearError: mockClearError,
+      });
+
+      render(<MessagesPage />);
+
+      const retryButton = screen.getByText(/retry/i);
+      await user.click(retryButton);
+
+      expect(mockClearError).toHaveBeenCalled();
     });
   });
 });

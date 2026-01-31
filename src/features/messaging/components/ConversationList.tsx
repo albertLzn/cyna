@@ -1,6 +1,7 @@
 "use client";
 
 import type { Conversation, ConversationId } from '../domain/types';
+import { TypingIndicator } from './TypingIndicator';
 
 interface Props {
   conversations: Conversation[];
@@ -36,6 +37,10 @@ export function ConversationList({ conversations, selectedId, onSelect }: Props)
               </p>
             </div>
           </div>
+
+          <TypingIndicator
+            conversationId={conv.id}
+          />
         </button>
       ))}
     </div>

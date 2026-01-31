@@ -5,6 +5,7 @@ import { useConversationStore } from '../store/conversationStore';
 import { ConversationWindow } from './ConversationWindow';
 import { MessageSquare, Minus, X } from 'lucide-react';
 import type { ConversationId } from '../domain/types';
+import { TypingIndicator } from './TypingIndicator';
 
 export function ChatFloating() {
   const [isOpen, setIsOpen] = useState(false);
@@ -74,6 +75,9 @@ export function ChatFloating() {
                           </p>
                         </div>
                       </div>
+                      <TypingIndicator
+                        conversationId={conv.id}
+                      />
                     </button>
                   ))}
                 </div>

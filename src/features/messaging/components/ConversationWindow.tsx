@@ -6,6 +6,8 @@ import type { Conversation } from '../domain/types';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import { CONVERSATION_WINDOW_POSITION } from '../domain/constants';
+import { useTypingIndicator } from '../hooks/useTyping';
+import { TypingIndicator } from './TypingIndicator';
 
 interface Props {
   conversation: Conversation;
@@ -14,6 +16,7 @@ interface Props {
 
 export function ConversationWindow({ conversation, onClose }: Props) {
   const [isMinimized, setIsMinimized] = useState(false);
+  const { typingUsers } = useTypingIndicator(conversation.id);
   const [position] = useState({
     bottom: CONVERSATION_WINDOW_POSITION.DEFAULT_BOTTOM_PX,
     right: CONVERSATION_WINDOW_POSITION.DEFAULT_RIGHT_PX,
@@ -53,6 +56,13 @@ export function ConversationWindow({ conversation, onClose }: Props) {
         <>
           <div className="h-[380px] overflow-y-auto">
             <MessageList conversationId={conversation.id} />
+            {typingUsers.length > 0 && (
+              <div className="p-2 border-t bg-gray-50">
+                <TypingIndicator
+                  conversationId={conversation.id}
+                />
+              </div>
+            )}
           </div>
           <div className="border-t p-3">
             <MessageInput conversationId={conversation.id} />
