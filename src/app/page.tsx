@@ -1,11 +1,11 @@
 "use client";
 
-import { ChatFloatingWrapper } from "@/app/messaging/components/ChatFloatingWrapper";
-import { useConversationStore } from "@/app/messaging/store/conversationStore";
+import { ChatFloatingWrapper } from "@/features/messaging/components/ChatFloatingWrapper";
+import { useConversationStore } from "@/features/messaging/store/conversationStore";
 import { MessageSquare, Inbox, Clock, ArrowRight, Mail } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
-import { formatLastActivity } from "./messaging/domain/helpers/date-formatter";
+import { formatLastActivity } from "../features/messaging/domain/helpers/date-formatter";
 
 export default function Home() {
   const { conversations, loadConversations, loading } = useConversationStore();
@@ -46,14 +46,13 @@ export default function Home() {
           <h2 className="text-5xl font-bold text-gray-900 mb-4">
             CHAT NETWORKING
           </h2>
-{/*  TODO :Add messages module / page
           <Link
             href="/messages"
             className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:shadow-xl"
           >
             Open Messages
             <ArrowRight className="w-5 h-5" />
-          </Link> */}
+          </Link>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">

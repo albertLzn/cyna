@@ -17,7 +17,6 @@ export function useMessages(conversationId: ConversationId) {
 
   const messages = getMessages(conversationId);
 
-  // Auto-load messages on mount
   useEffect(() => {
     loadMessages(conversationId);
   }, [conversationId]);

@@ -5,7 +5,7 @@ import {
   type Message,
   type Conversation,
   type User,
-} from '@/app/messaging/domain/types';
+} from '@/features/messaging/domain/types';
 
 export function parseMessage(dto: any): Message {
   return {
