@@ -15,6 +15,9 @@ const customJestConfig = {
     '!src/features/**/*.test.{ts,tsx}',
     '!src/features/**/index.ts',
   ],
+    testPathIgnorePatterns: [
+    '/tests/e2e/'
+  ],
   coverageThreshold: {
     global: {
       branches: 80,
