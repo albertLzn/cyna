@@ -20,6 +20,8 @@ export class ConversationRepository extends BaseRepository implements IConversat
       }
 
       const json = await response.json();
+          console.log(json)
+
       return { data: json.data.map(parseConversation) };
     } catch (error) {
       return { error: this.handleError(error) };

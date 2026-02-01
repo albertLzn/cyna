@@ -3,7 +3,7 @@ import type {
   Conversation,
   ConversationId,
   UserId,
-} from '../domain/types';
+} from '../domain/types'; 
 import { ValidationError, NetworkError } from '../domain/interfaces';
 import { CONVERSATION_CACHE } from '../domain/constants';
 

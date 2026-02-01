@@ -30,7 +30,7 @@ export default function MessagesPage() {
 
   const filteredConversations = conversations.filter((conv) => {
     if (!searchQuery) return true;
-    const participant = conv.participants[0]?.name.toLowerCase() || '';
+    const participant = conv.participants[conv.participants.length - 1]?.name.toLowerCase() || '';
     const lastMsg = conv.lastMessage?.content?.toLowerCase() || '';
     return participant.includes(searchQuery.toLowerCase()) || lastMsg.includes(searchQuery.toLowerCase());
   });

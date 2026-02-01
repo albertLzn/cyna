@@ -84,6 +84,7 @@ INSERT INTO conversation_participants (conversation_id, user_id, unread_count) V
 ON CONFLICT (conversation_id, user_id) DO NOTHING;
 
 INSERT INTO messages (id, conversation_id, sender_id, content, status, created_at) VALUES
+  ('msg1', 'conv0', 'user1', 'J''envoie cette note à moi même', 'read', NOW() - INTERVAL '2 hours'),
   ('msg1', 'conv1', 'user2', 'Salut Laeticia ! J''ai vu ton post sur l''optimisation React. Super intéressant !', 'read', NOW() - INTERVAL '2 hours'),
   ('msg2', 'conv1', 'user1', 'Merci Oscar ! Content que ça t''ait aidé. Tu travailles sur quelque chose de similaire ?', 'read', NOW() - INTERVAL '1 hour'),
   ('msg3', 'conv1', 'user2', 'Oui, j''optimise notre plateforme e-commerce. Ce serait cool d''échanger !', 'sent', NOW() - INTERVAL '30 minutes'),

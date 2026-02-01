@@ -33,7 +33,7 @@ export function parseConversation(dto: any): Conversation {
   };
 }
 
-export function parseUser(dto: any): User {
+function parseUser(dto: any): User {
   return {
     id: createUserId(dto.id),
     name: dto.name,

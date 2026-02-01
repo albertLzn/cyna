@@ -41,7 +41,7 @@ jest.mock('@/features/messaging/components/ConversationList', () => ({
           data-testid={`conv-${conv.id}`}
           aria-label={conv.participants[0]?.name}
         >
-          {conv.participants[0]?.name}
+          {conv.participants[conv.participants.length - 1]?.name}
         </button>
       ))}
     </div>

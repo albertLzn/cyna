@@ -76,7 +76,7 @@ export function MessageList({ conversationId }: MessageListProps) {
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-4 flex flex-col-reverse">
         {messages.map((msg) => {
           const isOwn = msg.senderId === currentUserId;
           const isDeleted = msg.deletedAt !== null;
@@ -90,8 +90,7 @@ export function MessageList({ conversationId }: MessageListProps) {
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0" />
 
               <div
-                className={`flex flex-col max-w-[70%] ${isOwn ? "items-end" : "items-start"
-                  }`}
+                className={`flex flex-col max-w-[70%]`}
               >
                 <div
                   className={`rounded-lg px-4 py-2 ${isOwn
