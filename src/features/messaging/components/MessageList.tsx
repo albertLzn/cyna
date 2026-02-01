@@ -6,21 +6,15 @@ import { MessageStatus } from "../domain/types";
 import { CheckCheck, Clock, XCircle } from "lucide-react";
 import { useMessages } from "../hooks/useMessage";
 import { MESSAGE_LIST_UI, MOCK_CURRENT_USER_ID, TIME_CONSTANTS } from "../domain/constants";
-import { useTypingIndicator } from "../hooks/useTyping";
-import { useConversationStore } from "../store/conversationStore";
-import { TypingIndicator } from "./TypingIndicator";
 
 interface MessageListProps {
   conversationId: ConversationId;
 }
 
 export function MessageList({ conversationId }: MessageListProps) {
-  const { messages, loading, loadMore, retryFailed } =
+  const { messages, loading, loadMore, retryFailed, deleteMessage } =
     useMessages(conversationId);
-  const { typingUsers } = useTypingIndicator(conversationId);
-  const { conversations } = useConversationStore();
 
-  const currentConversation = conversations.find(c => c.id === conversationId);
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -87,6 +81,14 @@ export function MessageList({ conversationId }: MessageListProps) {
               className={`flex gap-3 ${isOwn ? "flex-row-reverse" : "flex-row"
                 }`}
             >
+              {isOwn && !isDeleted && (
+                <button
+                  onClick={() => deleteMessage(msg.id)}
+                  title="Delete message"
+                >
+                  <XCircle className="w-3 h-3" />
+                </button>
+              )}
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0" />
 
               <div
@@ -147,12 +149,6 @@ export function MessageList({ conversationId }: MessageListProps) {
             </div>
           );
         })}
-
-        {typingUsers.length > 0 && currentConversation && (
-          <TypingIndicator
-            conversationId={conversationId}
-          />
-        )}
       </div>
 
       <div ref={bottomRef} />
