@@ -3,7 +3,7 @@ import type {
   Conversation,
   ConversationId,
   UserId,
-} from '../domain/types'; 
+} from '../domain/types';
 import { ValidationError, NetworkError } from '../domain/interfaces';
 import { CONVERSATION_CACHE } from '../domain/constants';
 
@@ -30,7 +30,9 @@ export class ConversationService implements IConversationService {
     const result = await this.conversationRepo.getConversations();
 
     if ('error' in result) {
-      throw new NetworkError(result.error);
+      const msg = result.error;
+      if (!msg) throw new NetworkError('Unknown network error');
+      throw new NetworkError(msg);
     }
 
     this.conversationsCache = result.data;
@@ -47,7 +49,9 @@ export class ConversationService implements IConversationService {
     const result = await this.conversationRepo.getOrCreateConversation(participantId);
 
     if ('error' in result) {
-      throw new NetworkError(result.error);
+      const msg = result.error;
+      if (!msg) throw new NetworkError('Unknown network error');
+      throw new NetworkError(msg);
     }
 
     this.invalidateCache();
@@ -63,13 +67,16 @@ export class ConversationService implements IConversationService {
     const messagesResult = await this.messageRepo.markConversationAsRead(conversationId);
 
     if ('error' in messagesResult) {
-      throw new NetworkError(messagesResult.error);
+      const msg = messagesResult.error;
+      if (!msg) throw new NetworkError('Unknown network error');
+      throw new NetworkError(msg);
     }
-
     const convResult = await this.conversationRepo.updateUnreadCount(conversationId);
 
     if ('error' in convResult) {
-      throw new NetworkError(convResult.error);
+      const msg = convResult.error;
+      if (!msg) throw new NetworkError('Unknown network error');
+      throw new NetworkError(msg);
     }
 
     this.invalidateCache();

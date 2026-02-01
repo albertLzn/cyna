@@ -53,7 +53,7 @@ export default function MessagesPage() {
       <header className="border-b px-6 py-4 bg-white z-10">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
-          
+
           <Button
             variant="ghost"
             size="icon"
@@ -128,7 +128,6 @@ export default function MessagesPage() {
           ) : (
             <ConversationList
               conversations={filteredConversations}
-              selectedId={selectedId}
               onSelect={(id) => {
                 setSelectedId(id);
                 if (window.innerWidth < 768) {
@@ -166,8 +165,8 @@ export default function MessagesPage() {
                       {selectedConversation.participants[0]?.name || 'Unknown'}
                     </h2>
                     <p className="text-xs text-gray-500">
-                      {selectedConversation.participants[0]?.presenceStatus === 'online' 
-                        ? 'Online' 
+                      {selectedConversation.participants[0]?.presenceStatus === 'online'
+                        ? 'Online'
                         : 'Offline'}
                     </p>
                   </div>
@@ -179,10 +178,9 @@ export default function MessagesPage() {
                   </Badge>
                 )}
               </header>
-              <div className="flex-1 overflow-hidden">
-                <MessageList conversationId={selectedId} />
-              </div>
-              <MessageInput conversationId={selectedId} />
+              {selectedId && <MessageList conversationId={selectedId} />}
+              {selectedId && <MessageInput conversationId={selectedId} />}
+
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-8">

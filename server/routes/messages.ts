@@ -83,7 +83,7 @@ app.post('/messages', async (c) => {
   // Validate payload
   const parsed = createMessageSchema.safeParse(body);
   if (!parsed.success) {
-    return c.json({ error: parsed.error.errors[0].message }, 400);
+    return c.json({ error: parsed.error.issues[0].message }, 400);
   }
 
   const { conversationId, content, files } = parsed.data;

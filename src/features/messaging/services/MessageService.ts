@@ -81,7 +81,7 @@
             const result = await this.repository.getMessages(params);
 
             if ('error' in result) {
-                throw new NetworkError(result.error);
+                throw new NetworkError(result.error!);
             }
 
             this.cache.set(cacheKey, {
@@ -123,7 +123,7 @@
                 );
 
                 if ('error' in result) {
-                    throw new NetworkError(result.error);
+                    throw new NetworkError(result.error!);
                 }
 
                 const serverMessage = result.data;
@@ -182,7 +182,7 @@
                     pending.status = MessageStatus.DELIVERED;
                     pending.readAt = null;
                 }
-                throw new NetworkError(result.error);
+                throw new NetworkError(result.error!);
             }
 
             this.invalidateCacheForMessage(messageId);
@@ -204,7 +204,7 @@
                 if (pending) {
                     pending.deletedAt = null;
                 }
-                throw new NetworkError(result.error);
+                throw new NetworkError(result.error!);
             }
 
             this.invalidateCacheForMessage(messageId);
@@ -253,7 +253,6 @@
             }
         }
 
-        // ==================== PRIVATE HELPERS ====================
 
         private validateCreatePayload(payload: CreateMessagePayload): void {
             if (!payload.conversationId) {
@@ -354,9 +353,6 @@
                 if (type === 'message:update') {
                     const message = payload as Message;
                     this.pendingMessages.set(message.id, message);
-
-                    // Trigger re-render si hook subscribed
-                    // (géré par store Zustand dans l'implémentation réelle)
                 }
             };
         }
