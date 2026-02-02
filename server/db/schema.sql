@@ -39,9 +39,14 @@ CREATE TABLE IF NOT EXISTS messages (
   deleted_at TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_messages_status ON messages(conversation_id, status);
-CREATE INDEX IF NOT EXISTS idx_conversation_participants ON conversation_participants(user_id);
+CREATE INDEX IF NOT EXISTS idx_messages_conversation
+  ON messages(conversation_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_messages_status
+  ON messages(conversation_id, status);
+
+CREATE INDEX IF NOT EXISTS idx_conversation_participants
+  ON conversation_participants(user_id);
 
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -49,16 +54,22 @@ BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ language 'plpgsql';
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_users_updated_at ON users;
+CREATE TRIGGER update_users_updated_at
+BEFORE UPDATE ON users
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_conversations_updated_at BEFORE UPDATE ON conversations
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_conversations_updated_at ON conversations;
+CREATE TRIGGER update_conversations_updated_at
+BEFORE UPDATE ON conversations
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_messages_updated_at BEFORE UPDATE ON messages
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_messages_updated_at ON messages;
+CREATE TRIGGER update_messages_updated_at
+BEFORE UPDATE ON messages
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 INSERT INTO users (id, name, email, avatar, headline, company, presence_status) VALUES
   ('user1', 'Laeticia Friburg', 'laeticia.friburg@linkedin.com', 'imageToAdd', 'Senior Product Manager @ Tech Startup', 'InnovateCo', 'online'),
@@ -69,6 +80,7 @@ INSERT INTO users (id, name, email, avatar, headline, company, presence_status) 
 ON CONFLICT (email) DO NOTHING;
 
 INSERT INTO conversations (id) VALUES
+  ('conv0'),
   ('conv1'),
   ('conv2'),
   ('conv3')
@@ -84,7 +96,7 @@ INSERT INTO conversation_participants (conversation_id, user_id, unread_count) V
 ON CONFLICT (conversation_id, user_id) DO NOTHING;
 
 INSERT INTO messages (id, conversation_id, sender_id, content, status, created_at) VALUES
-  ('msg1', 'conv0', 'user1', 'J''envoie cette note à moi même', 'read', NOW() - INTERVAL '2 hours'),
+  ('msg0', 'conv0', 'user1', 'J''envoie cette note à moi même', 'read', NOW() - INTERVAL '2 hours'),
   ('msg1', 'conv1', 'user2', 'Salut Laeticia ! J''ai vu ton post sur l''optimisation React. Super intéressant !', 'read', NOW() - INTERVAL '2 hours'),
   ('msg2', 'conv1', 'user1', 'Merci Oscar ! Content que ça t''ait aidé. Tu travailles sur quelque chose de similaire ?', 'read', NOW() - INTERVAL '1 hour'),
   ('msg3', 'conv1', 'user2', 'Oui, j''optimise notre plateforme e-commerce. Ce serait cool d''échanger !', 'sent', NOW() - INTERVAL '30 minutes'),
