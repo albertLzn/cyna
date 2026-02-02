@@ -1,36 +1,131 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Technical Test Cyna. LinkedIn chat replica
 
-## Getting Started
+Real-time messaging with floating chat, typing indicators, and multi-device sync.
 
-First, run the development server:
+    Stack
+    Frontend
+    Next.js 14
+    TypeScript
+    Tailwind
+    shadcn/ui
+    Backend
+    Hono
+    PostgreSQL
+    State
+    Zustand
+    Real-time
+    WebSocket
+    Tests
+    Playwright
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Setup. Install dependencies:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+    npm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+Copy environment file:
 
-To learn more about Next.js, take a look at the following resources:
+    cp .env.local
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Database setup (macOS)
 
-## Deploy on Vercel
+Start PostgreSQL locally using Homebrew:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Install PostgreSQL
+brew install postgresql@16
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Start PostgreSQL service
+brew services start postgresql@16
+
+
+Create the database:
+
+createdb cyna_chat
+
+
+Initialize schema and seed data:
+
+npm run db:setup
+
+Reset the database:
+
+npm run db:reset
+
+Run backend:
+
+    npm run dev:server
+
+Run frontend:
+
+    npm run dev
+
+
+Open:
+
+    http://localhost:3000
+
+Project Structure
+    src/
+    ├── app/                    Next.js pages
+    ├── features/messaging/     All messaging logic
+    │   ├── domain/             Types, interfaces
+    │   ├── services/           Business logic
+    │   ├── repositories/       API calls
+    │   ├── store/              Zustand
+    │   ├── hooks/              React hooks
+    │   └── components/         UI
+    ├── /messages               Messages page/module
+    ├── lib/                    Shared utils
+    ├── domain/                 Types, interfaces, constants
+
+    server/
+    ├── index.ts                Hono server
+    ├── db/schema.sql           Database
+    ├── routes/                 API endpoints
+    └── websocket/              WS handlers
+    └── utils/     
+
+Key Features
+
+    Floating chat 
+
+    Detachable windows 
+
+    Multi-device sync 
+
+    Message status 
+
+    Typing indicators (throttle 2s)
+
+    Optimistic updates 
+
+    Message delete 
+
+Testing
+
+    Run E2E tests:
+
+    npm run test:e2e
+
+
+Database
+
+    Schema in server/db/schema.sql.
+
+    Includes seed data:
+
+    5 users
+
+    4 conversations
+
+Tables:
+
+    users
+
+    conversations
+
+    messages
+
+    conversation_participants
