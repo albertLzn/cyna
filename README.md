@@ -25,35 +25,70 @@ Setup. Install dependencies:
 
 
 Copy environment file:
+```bash
+cp .env.example .env.local
+```
 
-    cp .env.local
+Edit `.env.local` with your database credentials.
 
+## Database Setup
 
-Database setup (macOS)
+### Option 1: Local PostgreSQL (macOS)
 
-Start PostgreSQL locally using Homebrew:
-
-# Install PostgreSQL
+Install and start PostgreSQL:
+```bash
 brew install postgresql@16
-
-# Start PostgreSQL service
 brew services start postgresql@16
+```
 
-# Create superuser named postgres for local dev
+Create superuser:
+```bash
 psql postgres -c "CREATE ROLE postgres WITH LOGIN SUPERUSER PASSWORD 'postgres';"
+```
 
-# Create the database:
-
+Create database:
+```bash
 createdb cyna_chat
+```
 
-
-Initialize schema and seed data:
-
+Initialize schema:
+```bash
 npm run db:setup
+```
 
-Reset the database:
+### Option 2: Neon (Cloud Postgres)
 
+1. Create account at https://neon.tech
+2. Create project: `cyna-chat`
+3. Copy connection string from dashboard
+4. Add to `.env.local`:
+```env
+DATABASE_URL=postgresql://user:password@host/database?sslmode=require
+```
+
+5. Initialize schema:
+```bash
+psql 'YOUR_CONNECTION_STRING' -f server/db/schema.sql
+```
+
+6. Verify tables:
+```bash
+psql 'YOUR_CONNECTION_STRING' -c "\dt"
+```
+
+### Reset Database
+
+Local:
+```bash
 npm run db:reset
+```
+
+Neon:
+```bash
+psql 'YOUR_CONNECTION_STRING' -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+psql 'YOUR_CONNECTION_STRING' -f server/db/schema.sql
+```
+```
 
 Run backend:
 
