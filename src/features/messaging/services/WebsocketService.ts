@@ -35,11 +35,6 @@ export class WebSocketService implements IWebSocketService {
   }
 
   async connect(userId: UserId): Promise<void> {
-    if (this.ws?.readyState === WebSocket.OPEN) {
-      console.log('[WS] Already connected');
-      return;
-    }
-
     this.userId = userId;
 
     return new Promise((resolve, reject) => {
@@ -47,7 +42,6 @@ export class WebSocketService implements IWebSocketService {
         this.ws = new WebSocket(`${this.config.url}?userId=${userId}`);
 
         this.ws.onopen = () => {
-          console.log('[WS] Connected');
           this.connected = true;
           this.reconnectAttempts = 0;
           this.startHeartbeat();
@@ -59,12 +53,10 @@ export class WebSocketService implements IWebSocketService {
         };
 
         this.ws.onerror = (error) => {
-          console.error('[WS] Error:', error);
           reject(new Error('WebSocket connection failed'));
         };
 
         this.ws.onclose = () => {
-          console.log('[WS] Disconnected');
           this.connected = false;
           this.stopHeartbeat();
           this.attemptReconnect();
@@ -119,7 +111,6 @@ export class WebSocketService implements IWebSocketService {
     return this.connected && this.ws?.readyState === WebSocket.OPEN;
   }
 
-  // To Do Move to helpers
   private handleMessage(data: string): void {
     try {
       const event = JSON.parse(data) as WebSocketEvent;
@@ -128,28 +119,22 @@ export class WebSocketService implements IWebSocketService {
         listeners.forEach((callback) => callback(event as any));
       }
     } catch (error) {
-      console.error('[WS] Failed to parse message:', error);
     }
   }
 
   private attemptReconnect(): void {
     if (this.reconnectAttempts >= this.config.maxReconnectAttempts) {
-      console.error('[WS] Max reconnect attempts reached');
       return;
     }
 
     if (!this.userId) {
-      console.error('[WS] Cannot reconnect: no userId');
       return;
     }
 
     const delay = this.config.reconnectInterval * Math.pow(2, this.reconnectAttempts);
-    console.log(`[WS] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts + 1})`);
-
     this.reconnectTimer = setTimeout(() => {
       this.reconnectAttempts++;
       this.connect(this.userId!).catch((error) => {
-        console.error('[WS] Reconnect failed:', error);
       });
     }, delay);
   }

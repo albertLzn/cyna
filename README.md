@@ -39,8 +39,10 @@ brew install postgresql@16
 # Start PostgreSQL service
 brew services start postgresql@16
 
+# Create superuser named postgres for local dev
+psql postgres -c "CREATE ROLE postgres WITH LOGIN SUPERUSER PASSWORD 'postgres';"
 
-Create the database:
+# Create the database:
 
 createdb cyna_chat
 
