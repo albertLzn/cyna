@@ -163,33 +163,6 @@
             }
         }
 
-        async markAsRead(messageId: MessageId): Promise<Message> {
-            const pending = this.pendingMessages.get(messageId);
-            if (pending) {
-                pending.status = MessageStatus.READ;
-                pending.readAt = new Date();
-                pending.updatedAt = new Date();
-                this.broadcastMessageUpdate(pending);
-            }
-
-            const result = await this.repository.updateMessageStatus({
-                messageId,
-                status: MessageStatus.READ,
-            });
-
-            if ('error' in result) {
-                if (pending) {
-                    pending.status = MessageStatus.DELIVERED;
-                    pending.readAt = null;
-                }
-                throw new NetworkError(result.error!);
-            }
-
-            this.invalidateCacheForMessage(messageId);
-
-            return result.data;
-        }
-
         async deleteMessage(messageId: MessageId): Promise<Message> {
             const pending = this.pendingMessages.get(messageId);
             if (pending) {

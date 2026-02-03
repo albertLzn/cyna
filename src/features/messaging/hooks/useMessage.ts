@@ -7,7 +7,6 @@ export function useMessages(conversationId: ConversationId) {
     getMessages,
     loadMessages,
     sendMessage,
-    markAsRead,
     deleteMessage,
     retryFailed,
     loading,
@@ -26,7 +25,6 @@ export function useMessages(conversationId: ConversationId) {
     loading,
     error,
     sendMessage: (content: string, files?: any[]) => sendMessage(conversationId, content, files),
-    markAsRead,
     deleteMessage,
     retryFailed,
     loadMore: () => {

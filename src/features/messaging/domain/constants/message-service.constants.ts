@@ -8,7 +8,7 @@ export const MESSAGE_SERVICE_CONSTANTS = {
   DEFAULT_PAGE_LIMIT: 50,
   BROADCAST_CHANNEL_NAME: 'messaging_sync',
   REQUEST_TIMEOUT_ERROR: 'Request timeout',
-  MOCK_CURRENT_USER_ID: 'user1',
+  MOCK_CURRENT_USER_ID: 'user2',
 } as const;
 
 export const PAGINATION = {

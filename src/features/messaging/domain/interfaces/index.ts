@@ -34,7 +34,6 @@ export interface IConversationRepository {
 export interface IMessageService {
   getMessages(params: MessageQueryParams): Promise<PaginatedResult<Message>>;
   sendMessage(payload: CreateMessagePayload): Promise<Message>;
-  markAsRead(messageId: MessageId): Promise<Message>;
   deleteMessage(messageId: MessageId): Promise<Message>;
   retryFailedMessage(messageId: MessageId): Promise<Message>;
 }

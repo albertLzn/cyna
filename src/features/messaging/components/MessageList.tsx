@@ -5,7 +5,8 @@ import type { ConversationId, Message } from "../domain/types";
 import { MessageStatus } from "../domain/types";
 import { CheckCheck, Clock, XCircle } from "lucide-react";
 import { useMessages } from "../hooks/useMessage";
-import { MESSAGE_LIST_UI, MOCK_CURRENT_USER_ID, TIME_CONSTANTS } from "../domain/constants";
+import { MESSAGE_LIST_UI, MESSAGE_SERVICE_CONSTANTS, TIME_CONSTANTS } from "../domain/constants";
+import { useConversationStore } from "../store/conversationStore";
 
 interface MessageListProps {
   conversationId: ConversationId;
@@ -14,6 +15,7 @@ interface MessageListProps {
 export function MessageList({ conversationId }: MessageListProps) {
   const { messages, loading, loadMore, retryFailed, deleteMessage } =
     useMessages(conversationId);
+  const { markAsRead } = useConversationStore();
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -21,6 +23,10 @@ export function MessageList({ conversationId }: MessageListProps) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length]);
+
+  useEffect(() => {
+  markAsRead(conversationId);
+}, [conversationId, markAsRead]);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop } = e.currentTarget;
@@ -56,7 +62,7 @@ export function MessageList({ conversationId }: MessageListProps) {
   };
 
   // Mock current user ID (replace with real auth)
-  const currentUserId = MOCK_CURRENT_USER_ID;
+  const currentUserId = MESSAGE_SERVICE_CONSTANTS.MOCK_CURRENT_USER_ID;
 
   return (
     <div

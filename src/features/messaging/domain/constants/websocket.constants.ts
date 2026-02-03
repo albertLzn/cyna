@@ -5,8 +5,6 @@ export const WS_CONSTANTS = {
   DISPLAY_TIMEOUT_MS: 5000,
 } as const;
 
-export const MOCK_CURRENT_USER_ID = 'user1';
-
 export const CONVERSATION_CACHE = {
   TTL_MS: 30_000,
 } as const;

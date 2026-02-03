@@ -183,13 +183,12 @@ app.patch('/conversations/:id/unread', async (c) => {
   const conversationId = c.req.param('id');
   const userId = extractUserId(c);
 
-  await db.query(
-    `UPDATE conversation_participants
-     SET unread_count = 0
-     WHERE conversation_id = $1 AND user_id = $2`,
-    [conversationId, userId]
-  );
-
+await db.query(
+  `UPDATE conversation_participants
+   SET unread_count = 0
+   WHERE conversation_id = $1 AND user_id = $2`,
+  [conversationId, userId]
+);
   const result = await db.query(
     `SELECT 
       c.id,

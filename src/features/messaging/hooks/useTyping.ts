@@ -4,6 +4,7 @@ import { useConversationStore } from '../store/conversationStore';
 import { TypingService } from '../services/TypingService';
 import { useWebSocketService } from './useWebsocket';
 import { createUserId } from '../domain/types';
+import { MESSAGE_SERVICE_CONSTANTS } from '../domain/constants';
 
 let typingServiceInstance: TypingService | null = null;
 
@@ -16,7 +17,7 @@ export function useTypingIndicator(conversationId: ConversationId) {
     if (!typingServiceInstance) {
       typingServiceInstance = new TypingService(
         wsService,
-        createUserId('user1')
+        createUserId(MESSAGE_SERVICE_CONSTANTS.MOCK_CURRENT_USER_ID)
       );
     }
     return typingServiceInstance;

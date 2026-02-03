@@ -80,7 +80,6 @@ app.post('/messages', async (c) => {
   const body = await c.req.json();
   const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-  // Validate payload
   const parsed = createMessageSchema.safeParse(body);
   if (!parsed.success) {
     return c.json({ error: parsed.error.issues[0].message }, 400);
@@ -89,7 +88,6 @@ app.post('/messages', async (c) => {
   const { conversationId, content, files } = parsed.data;
   const userId = extractUserId(c);
 
-  // Check user is participant
   const isParticipant = await db.query(
     `SELECT 1 FROM conversation_participants 
      WHERE conversation_id = $1 AND user_id = $2`,
@@ -100,12 +98,13 @@ app.post('/messages', async (c) => {
     return c.json({ error: 'Forbidden' }, 403);
   }
 
-const result = await db.query(
-  `INSERT INTO messages (id, conversation_id, sender_id, content, files, status, created_at, updated_at)
-   VALUES ($1, $2, $3, $4, $5, 'sent', NOW(), NOW())
-   RETURNING *`,
-  [messageId, conversationId, userId, content, JSON.stringify(files || [])]
-);
+  const result = await db.query(
+    `INSERT INTO messages (id, conversation_id, sender_id, content, files, status, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, 'sent', NOW(), NOW())
+     RETURNING *`,
+    [messageId, conversationId, userId, content, JSON.stringify(files || [])]
+  );
+  
   const message = result.rows[0];
 
   // Update conversation lastMessage
@@ -116,7 +115,14 @@ const result = await db.query(
     [message.id, conversationId]
   );
 
-  // Broadcast WebSocket event (mock for now)
+  // Increment unread_count ONLY for OTHER participants (not sender)
+  await db.query(
+    `UPDATE conversation_participants
+     SET unread_count = unread_count + 1
+     WHERE conversation_id = $1 AND user_id != $2`,
+    [conversationId, userId]
+  );
+
   broadcastWSEvent({
     type: 'message:sent',
     payload: message,
@@ -231,13 +237,12 @@ app.post('/conversations/:id/mark-read', async (c) => {
 
   const messageIds = result.rows.map((row) => row.id);
 
-  await db.query(
-    `UPDATE conversations 
-     SET unread_count = 0
-     WHERE id = $1`,
-    [conversationId]
-  );
-
+await db.query(
+  `UPDATE conversation_participants
+   SET unread_count = 0
+   WHERE conversation_id = $1 AND user_id = $2`,
+  [conversationId, userId]
+);
   messageIds.forEach((msgId) => {
     broadcastWSEvent({
       type: 'message:read',

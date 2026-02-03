@@ -4,7 +4,7 @@
 import { useEffect, useMemo } from 'react';
 import { WebSocketService } from '../services/WebsocketService';
 import { createUserId } from '../domain/types';
-import { MOCK_CURRENT_USER_ID } from '../domain/constants';
+import { MESSAGE_SERVICE_CONSTANTS } from '../domain/constants';
 
 let wsServiceInstance: WebSocketService | null = null;
 
@@ -19,7 +19,7 @@ export function useWebSocketService(): WebSocketService {
   useEffect(() => {
     // Auto-connect on mount
     if (!service.isConnected()) {
-      service.connect(createUserId(MOCK_CURRENT_USER_ID)).catch((err) => {
+      service.connect(createUserId(MESSAGE_SERVICE_CONSTANTS.MOCK_CURRENT_USER_ID)).catch((err) => {
         console.error('[WS] Connection failed:', err);
       });
     }
