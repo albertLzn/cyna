@@ -2,7 +2,29 @@ Technical Test Cyna. LinkedIn chat replica
 
 Real-time messaging with floating chat, typing indicators, and multi-device sync.
 
-    Stack
+# Prod url
+front https://cyna-chat-app.onrender.com/
+https://cyna-backend.onrender.com
+
+Example of curl POST 
+
+curl -X POST https://cyna-backend.onrender.com/api/conversations/with/user4 \
+
+  -H "X-Mock-User-Id: user1"
+
+then 
+
+
+curl -X POST https://cyna-backend.onrender.com/api/messages \
+  -H "Content-Type: application/json" \
+  -H "X-Mock-User-Id: user1" \
+  -d '{
+    "conversationId": "conv_1770228491141_351tuvwws",
+    "content": "Salut "
+  }'
+
+
+#  Stack
     Frontend
     Next.js 14
     TypeScript

@@ -16,4 +16,4 @@ export const PAGINATION = {
   MAX_PAGE_SIZE: 100,
 } as const;
 
-export const LOCAL_URL = 'http://localhost:3001/api'  as const
+export const LOCAL_URL = 'http://localhost:10000/api'  as const

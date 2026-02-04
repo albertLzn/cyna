@@ -8,7 +8,7 @@
     "build": "next build",
     "build:server": "echo 'No build needed for Bun server'",
     "start": "next start",
-    "start:server": "bun server/index.ts",
+    "start:server": "node --loader ts-node/esm server/index.ts",
     "lint": "eslint",
     "test": "jest --watch",
     "test:ci": "jest --ci --coverage",

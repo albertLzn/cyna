@@ -31,7 +31,7 @@ export class WebSocketService implements IWebSocketService {
       // Refacto l url API_URL dans local.env et supprimer /api pour accès généralisé.
       url: isProd
         ? 'wss://cyna-backend.onrender.com/ws'
-        : 'ws://localhost:3001/ws',
+        : 'ws://localhost:10000/ws',
       reconnectInterval: config.reconnectInterval ?? WS_CONSTANTS.THROTTLE,
       maxReconnectAttempts: config.maxReconnectAttempts ?? WS_CONSTANTS.RECONNECT_MAX_ATTEMPTS,
       heartbeatInterval: config.heartbeatInterval ?? WS_CONSTANTS.HEARTBEAT_INTERVAL,

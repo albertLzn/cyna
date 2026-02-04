@@ -10,7 +10,7 @@ export abstract class BaseRepository {
   protected getAuthToken: () => string | null;
 
   constructor(config: HttpClientConfig = {}) {
-    this.baseURL = config.baseURL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+    this.baseURL = config.baseURL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:10000/api';
     this.getAuthToken = config.getAuthToken || (() => null);
   }
 
