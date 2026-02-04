@@ -27,7 +27,7 @@ export class WebSocketService implements IWebSocketService {
 
   constructor(config: WebSocketConfig = {}) {
     this.config = {
-      url: config.url || 'ws://localhost:3001/ws',
+      url: process.env.NEXT_PUBLIC_API_URL || 'ws://localhost:3001/ws',
       reconnectInterval: config.reconnectInterval ?? WS_CONSTANTS.THROTTLE,
       maxReconnectAttempts: config.maxReconnectAttempts ?? WS_CONSTANTS.RECONNECT_MAX_ATTEMPTS,
       heartbeatInterval: config.heartbeatInterval ?? WS_CONSTANTS.HEARTBEAT_INTERVAL,
