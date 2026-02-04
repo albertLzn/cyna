@@ -10,12 +10,14 @@ const app = new Hono();
 
 app.use('*', logger());
 app.use('*', cors({
-  origin: 'https://cyna-chat-app.onrender.com',
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:10000',
+    'https://cyna-chat-app.onrender.com',
+  ],
   credentials: true,
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowHeaders: ['Content-Type', 'Authorization'],
-  exposeHeaders: ['Content-Length', 'X-Request-Id'],
-  maxAge: 600,
+  allowHeaders: ['Content-Type', 'Authorization', 'x-mock-user-id']
 }));
 
 app.get('/health', (c) => c.json({ status: 'ok', timestamp: new Date() }));
@@ -30,10 +32,37 @@ app.onError((err, c) => {
 
 const port = parseInt(process.env.PORT || '10000');
 
-const server = createServer(async (req, res) => {
-  const response = await app.fetch(req as any);
-  res.writeHead(response.status, Object.fromEntries(response.headers));
-  res.end(await response.text());
+const server = createServer((req, res) => {
+  let body: any = undefined;
+
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    const chunks: Buffer[] = [];
+    req.on('data', chunk => chunks.push(chunk));
+    req.on('end', () => {
+      body = Buffer.concat(chunks);
+      processRequest();
+    });
+  } else {
+    processRequest();
+  }
+
+  async function processRequest() {
+    try {
+      const response = await app.fetch(new Request(`http://${req.headers.host}${req.url}`, {
+        method: req.method,
+        headers: req.headers as any,
+        body: body,
+      }));
+
+      res.writeHead(response.status, Object.fromEntries(response.headers));
+      const buffer = await response.arrayBuffer();
+      res.end(Buffer.from(buffer));
+    } catch (err) {
+      console.error('Server error:', err);
+      res.writeHead(500);
+      res.end('Internal Server Error');
+    }
+  }
 });
 
 const wss = new WebSocketServer({ server, path: '/ws' });

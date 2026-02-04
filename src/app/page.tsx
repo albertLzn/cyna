@@ -104,7 +104,7 @@ export default function Home() {
       </main>
 
       <ChatFloatingWrapper />
-      {process.env.NODE_ENV !== 'production' && <UserSwitcher/>}
+      <UserSwitcher/>
 
     </div>
   );
