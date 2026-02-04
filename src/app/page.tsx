@@ -6,6 +6,7 @@ import { MessageSquare, Inbox, Clock, ArrowRight, Mail } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
 import { formatLastActivity } from "../features/messaging/domain/helpers/date-formatter";
+import { UserSwitcher } from "@/features/messaging/components/UserSwitcher";
 
 export default function Home() {
   const { conversations, loadConversations, loading } = useConversationStore();
@@ -103,6 +104,8 @@ export default function Home() {
       </main>
 
       <ChatFloatingWrapper />
+      {process.env.NODE_ENV !== 'production' && <UserSwitcher/>}
+
     </div>
   );
 }

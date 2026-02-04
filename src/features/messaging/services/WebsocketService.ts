@@ -26,8 +26,12 @@ export class WebSocketService implements IWebSocketService {
   private connected = false;
 
   constructor(config: WebSocketConfig = {}) {
+    const isProd = process.env.NODE_ENV === 'production';
     this.config = {
-      url: process.env.NEXT_PUBLIC_API_URL || 'ws://localhost:3001/ws',
+      // Refacto l url API_URL dans local.env et supprimer /api pour accès généralisé.
+      url: isProd
+        ? 'wss://cyna-backend.onrender.com/ws'
+        : 'ws://localhost:3001/ws',
       reconnectInterval: config.reconnectInterval ?? WS_CONSTANTS.THROTTLE,
       maxReconnectAttempts: config.maxReconnectAttempts ?? WS_CONSTANTS.RECONNECT_MAX_ATTEMPTS,
       heartbeatInterval: config.heartbeatInterval ?? WS_CONSTANTS.HEARTBEAT_INTERVAL,

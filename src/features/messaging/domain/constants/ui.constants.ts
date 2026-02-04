@@ -24,3 +24,11 @@ export const TIME_CONSTANTS = {
   HOUR_MINUTES: 60,
   DAY_HOURS: 24,
 } as const;
+
+
+export const DEMO_USERS = [
+  { id: '1', name: 'User 1 Name', color: 'bg-pink-500' },
+  { id: '2', name: 'User 2 Name', color: 'bg-blue-500' },
+  { id: '3', name: 'User 3 Name', color: 'bg-green-500' },
+  { id: '4', name: 'User 4 Name', color: 'bg-purple-500' },
+] as const;

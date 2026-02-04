@@ -8,27 +8,34 @@ const app = new Hono();
 
 app.use('*', logger());
 app.use('*', cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://cyna-chat-app.onrender.com',
+  ],
   credentials: true,
 }));
 
-app.get('/health', (c) => c.json({ status: 'ok', timestamp: new Date() }));
+app.get('/health', (c) =>
+  c.json({ status: 'ok', timestamp: new Date() })
+);
 
 app.route('/api', messageRoutes);
 app.route('/api', conversationRoutes);
 
 app.onError((err, c) => {
   console.error('[Server Error]', err);
-  return c.json({ error: err.message || 'Internal server error' }, 500);
+  return c.json(
+    { error: err.message || 'Internal server error' },
+    500
+  );
 });
 
-// Bun syntax
 Bun.serve({
   port: parseInt(process.env.PORT || '3001'),
   fetch(req, server) {
     const url = new URL(req.url);
 
-    // Upgrade WebSocket connections
     if (url.pathname === '/ws') {
       const userId = url.searchParams.get('userId');
 
@@ -40,13 +47,12 @@ Bun.serve({
         data: { userId },
       } as any);
 
-      if (upgraded) return undefined;
+      if (upgraded) return;
     }
 
-    // Handle HTTP requests with Hono
     return app.fetch(req, { server });
   },
   websocket: require('./websocket/handler').wsHandler,
 });
 
-console.log(`Server OK`);
+console.log('Server OK');
