@@ -16,12 +16,16 @@ type EventCallback<T extends WebSocketEvent['type']> = (
 ) => void;
 
 export class WebSocketService implements IWebSocketService {
+
+  // Connection state
   private ws: WebSocket | null = null;
   private config: Required<WebSocketConfig>;
+  // Reconnection logic
   private reconnectAttempts = 0;
   private reconnectTimer: NodeJS.Timeout | null = null;
   private heartbeatTimer: NodeJS.Timeout | null = null;
   private userId: UserId | null = null;
+  // Event listeners
   private listeners = new Map<string, Set<EventCallback<any>>>();
   private connected = false;
 
@@ -37,7 +41,7 @@ export class WebSocketService implements IWebSocketService {
       heartbeatInterval: config.heartbeatInterval ?? WS_CONSTANTS.HEARTBEAT_INTERVAL,
     };
   }
-
+  // Establish WebSocket connection with userId in query params
   async connect(userId: UserId): Promise<void> {
     this.userId = userId;
 
@@ -83,6 +87,7 @@ export class WebSocketService implements IWebSocketService {
     this.connected = false;
     this.userId = null;
   }
+  // Send JSON event to server
 
   send(event: WebSocketEvent): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
@@ -150,7 +155,7 @@ export class WebSocketService implements IWebSocketService {
     }
     this.reconnectAttempts = 0;
   }
-
+  // Send ping to keep connection alive
   private startHeartbeat(): void {
     this.heartbeatTimer = setInterval(() => {
       if (this.ws?.readyState === WebSocket.OPEN) {

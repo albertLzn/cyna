@@ -33,7 +33,8 @@ export class MessageRepository extends BaseRepository implements IMessageReposit
       }
 
       const json = await response.json();
-
+      
+      // Parse each message and return paginated result
       return {
         data: {
           data: json.data.map(parseMessage),
@@ -46,6 +47,7 @@ export class MessageRepository extends BaseRepository implements IMessageReposit
     }
   }
 
+  // Creates a new message in a conversation 
   async createMessage(payload: CreateMessagePayload): Promise<ApiResponse<Message>> {
     try {
       const response = await fetch(`${this.baseURL}/messages`, {
@@ -69,6 +71,7 @@ export class MessageRepository extends BaseRepository implements IMessageReposit
     }
   }
 
+  // Updates message status 
   async updateMessageStatus(
     payload: UpdateMessageStatusPayload
   ): Promise<ApiResponse<Message>> {

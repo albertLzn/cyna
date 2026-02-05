@@ -17,6 +17,7 @@ interface ConversationState {
   flushNotif: (conversationId: ConversationId) => void;
   clearError: () => void;
 }
+// Initialize repositories and service
 
 const conversationRepo = new ConversationRepository({
   baseURL: process.env.NEXT_PUBLIC_API_URL || LOCAL_URL,
@@ -33,6 +34,7 @@ const conversationService = new ConversationService(conversationRepo, messageRep
 let wsInitialized = false;
 
 export const useConversationStore = create<ConversationState>((set, get) => {
+  // Setup WebSocket listeners once on mount
 
   if (typeof window !== 'undefined' && !wsInitialized) {
     wsInitialized = true;
@@ -48,6 +50,7 @@ export const useConversationStore = create<ConversationState>((set, get) => {
 
         wsService.subscribe('message:sent', (event) => {
           const message = event.payload;
+          // Update conversation with new lastMessage
 
           set((state) => {
             const updated = state.conversations.map(conv => {

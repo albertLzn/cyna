@@ -4,8 +4,11 @@ import type { ITypingService, IWebSocketService } from '../domain/interfaces';
 import type { ConversationId, UserId } from '../domain/types';
 
 export class TypingService implements ITypingService {
+  // Track which users are typing in each conversation
   private typingUsers = new Map<ConversationId, Set<UserId>>();
+  // Auto-remove typing indicator after 3s
   private typingTimers = new Map<ConversationId, NodeJS.Timeout>();
+  // Throttle local typing events to prevent spam
   private localTypingTimers = new Map<ConversationId, NodeJS.Timeout>();
 
   constructor(
@@ -16,6 +19,7 @@ export class TypingService implements ITypingService {
   }
 
   startTyping(conversationId: ConversationId): void {
+    // only send event if no recent typing event
     const existingTimer = this.localTypingTimers.get(conversationId);
     if (existingTimer) {
       return; 
@@ -39,6 +43,7 @@ export class TypingService implements ITypingService {
     this.localTypingTimers.set(conversationId, timer);
   }
 
+  // Clear throttle timer and broadcast stop event
   stopTyping(conversationId: ConversationId): void {
     const timer = this.localTypingTimers.get(conversationId);
     if (timer) {
@@ -68,12 +73,11 @@ export class TypingService implements ITypingService {
     this.typingUsers.clear();
   }
 
-
+  // Listen for "user:typing" events from other users. Ignore events from current user
   private setupWebSocketListeners(): void {
     this.wsService.subscribe('user:typing', (event) => {
       const { userId, conversationId, isTyping } = event.payload;
 
-      // Avoid showing typing indicator for the current user typing
       if (userId === this.currentUserId) {
         return;
       }

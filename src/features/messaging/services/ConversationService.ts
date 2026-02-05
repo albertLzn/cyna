@@ -8,8 +8,11 @@ import { ValidationError, NetworkError } from '../domain/interfaces';
 import { CONVERSATION_CACHE } from '../domain/constants';
 
 export class ConversationService implements IConversationService {
+  // Cached list of conversations
   private conversationsCache: Conversation[] | null = null;
+  // Timestamp when cache was last updated 
   private cacheTimestamp: number | null = null;
+  //  How long cache stays valid 
   private readonly cacheTTL = CONVERSATION_CACHE.TTL_MS;
 
   constructor(
@@ -17,8 +20,9 @@ export class ConversationService implements IConversationService {
     private readonly messageRepo: IMessageRepository
   ) { }
 
-
+  //  Fetches all conversations with caching 
   async getConversations(): Promise<Conversation[]> {
+    // Return cached data if still valid
     if (
       this.conversationsCache &&
       this.cacheTimestamp &&
@@ -35,12 +39,14 @@ export class ConversationService implements IConversationService {
       throw new NetworkError(msg);
     }
 
+    // Update cache
     this.conversationsCache = result.data;
     this.cacheTimestamp = Date.now();
 
     return result.data;
   }
 
+  // Opens existing conversation or creates new one with participant
   async openConversation(participantId: UserId): Promise<Conversation> {
     if (!participantId) {
       throw new ValidationError('participantId is required');
@@ -59,11 +65,12 @@ export class ConversationService implements IConversationService {
     return result.data;
   }
 
+  // Marks all messages in conversation as read and updates unread count
   async markConversationAsRead(conversationId: ConversationId): Promise<void> {
     if (!conversationId) {
       throw new ValidationError('conversationId is required');
     }
-
+    // Mark messages as read
     const messagesResult = await this.messageRepo.markConversationAsRead(conversationId);
 
     if ('error' in messagesResult) {
@@ -71,6 +78,7 @@ export class ConversationService implements IConversationService {
       if (!msg) throw new NetworkError('Unknown network error');
       throw new NetworkError(msg);
     }
+    // Update conversation's unread count
     const convResult = await this.conversationRepo.updateUnreadCount(conversationId);
 
     if ('error' in convResult) {

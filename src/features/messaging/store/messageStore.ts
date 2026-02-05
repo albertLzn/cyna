@@ -18,18 +18,18 @@ interface MessageState {
   getMessages: (conversationId: ConversationId) => Message[];
   clearError: () => void;
 }
-
+// Initialize repository with API base URL
 const repository = new MessageRepository({
   baseURL: process.env.NEXT_PUBLIC_API_URL || LOCAL_URL,
   getAuthToken: () => localStorage.getItem('auth_token'),
 });
-
+// Create service with business logic
 const messageService = new MessageService(repository);
 
 let wsInitialized = false;
 
 export const useMessageStore = create<MessageState>((set, get) => {
-
+  // Setup WebSocket listeners once on mount
   if (typeof window !== 'undefined' && !wsInitialized) {
     wsInitialized = true;
 
@@ -77,7 +77,7 @@ export const useMessageStore = create<MessageState>((set, get) => {
             return { messagesByConversation: updated };
           });
         });
-
+        // set deletedAt timestamp
         wsService.subscribe('message:deleted', (event) => {
           const { messageId, deletedAt } = event.payload;
 
